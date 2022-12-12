@@ -1,0 +1,55 @@
+-- THIS FILE CONTAINS ANALYSIS OF THE AIRLINE DELAY DATA USING HIVE
+
+-- CREATED FOLDER /Assignment/ IN HDFS AND STORED THE DATA IN THIS FOLDER
+
+---------------------------------------------------------------------
+-- DATA PREPARATION
+---------------------------------------------------------------------
+
+-- CREATE TABLE FOR DATA
+CREATE TABLE IF NOT EXISTS airline_delay_data (FL_DATE string,OP_CARRIER string,OP_CARRIER_FL_NUM string,ORIGIN string,DEST string,CRS_DEP_TIME string,DEP_TIME string,DEP_DELAY int,TAXI_OUT int,WHEELS_OFF string,WHEELS_ON string,TAXI_IN int,CRS_ARR_TIME string,ARR_TIME string,ARR_DELAY int,CANCELLED int,CANCELLATION_CODE int,DIVERTED int,CRS_ELAPSED_TIME int,ACTUAL_ELAPSED_TIME int,AIR_TIME int,DISTANCE int,CARRIER_DELAY int,WEATHER_DELAY int,NAS_DELAY int,LATE_AIRCRAFT_DELAY int )
+COMMENT 'AIRLINE DELAY TABLE'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ',';
+
+
+-- LOAD THE DATA FROM HDFS INTO THE TABLE
+LOAD DATA INPATH '/Assignment/cleaned_airline_data.csv' INTO TABLE airline_delay_data;
+
+----------------------------------------------------------------------
+-- QUERY ANALYSIS
+----------------------------------------------------------------------
+
+-- WHAT AIRLINES EXPERIENCE THE LONGEST AVERAGE DELAY?
+SELECT OP_CARRIER, avg(ARR_DELAY) average_delay
+FROM airline_delay_data
+GROUP BY OP_CARRIER
+ORDER BY average_delay DESC
+LIMIT 10;
+
+-- WHAT AIRLINES EXPERIENCE THE MOST DELAYS?
+SELECT OP_CARRIER, count(ARR_DELAY) total_delay
+FROM airline_delay_data
+GROUP BY OP_CARRIER
+ORDER BY total_delay DESC
+LIMIT 10;
+
+
+-- CALCULATING AVERAGE DEPARTURE DELAY FOR ALL FLIGHTS
+SELECT avg(DEP_DELAY) 
+FROM airline_delay_data;
+-- ANSWER: 10.389871842193651
+
+-- AGGREGATING ALL FLIGHTS ON THE BASIS OF FLY_DATE
+SELECT FL_DATE, count(*) as count
+FROM airline_delay_data
+GROUP BY FL_DATE
+ORDER BY FL_DATE
+LIMIT 10;
+
+-- LOOKING AT THE NUMBER OF DEP_DELAYS AND ARR_DELAYS FOR EACH DAY
+SELECT FL_DATE, count(DEP_DELAY) count_dep, count(ARR_DELAY) count_arr
+FROM airline_delay_data
+GROUP BY FL_DATE
+ORDER BY FL_DATE
+LIMIT 100;
